@@ -5,10 +5,15 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './screens/Homescreen';
 import AddWorkoutForm from './components/AddWorkout/AddWorkoutForm';
 import WorkoutList from './components/WorkoutList/WorkoutList';
+import { initDB } from './database/db';
 
 const Stack = createStackNavigator();
 
 export default function App() {
+  React.useEffect(() => {
+    initDB();
+  }, []);
+  
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">

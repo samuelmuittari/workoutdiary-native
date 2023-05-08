@@ -5,30 +5,29 @@ const db = SQLite.openDatabase('workouts.db');
 export const initDB = () => {
   db.transaction(tx => {
     tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, date TEXT, exercises TEXT)',
-      [],
-      () => console.log('Table created successfully'),
-      (_, error) => console.error('Error creating table:', error)
+      'CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, date TEXT, exercises TEXT)'
     );
   });
 };
 
 export const saveWorkout = (title, date, exercises) => {
   return new Promise((resolve, reject) => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'INSERT INTO workouts (title, date, exercises) VALUES (?, ?, ?)',
-        [title, date, exercises],
-        () => {
-          console.log('Workout saved successfully');
-          resolve(true);
-        },
-        (_, error) => {
-          console.error('Error saving workout:', error);
-          reject(error);
-        }
-      );
-    });
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'INSERT INTO workouts (title, date, exercises) VALUES (?, ?, ?)',
+          [title, date, exercises],
+          (_, result) => {
+            resolve(true);
+          },
+          (_, error) => {
+            reject(error);
+          }
+        );
+      },
+      null,
+      null
+    );
   });
 };
 
@@ -37,8 +36,26 @@ export const fetchWorkouts = (callback) => {
     tx.executeSql(
       'SELECT * FROM workouts',
       [],
-      (_, { rows }) => callback(rows._array),
-      (_, error) => console.error('Error fetching workouts:', error)
+      (_, { rows }) => {
+        callback(rows._array);
+      }
     );
+  });
+};
+
+export const removeWorkout = (id) => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'DELETE FROM workouts WHERE id = ?',
+        [id],
+        () => {
+          resolve(true);
+        },
+        (_, error) => {
+          reject(error);
+        }
+      );
+    });
   });
 };
